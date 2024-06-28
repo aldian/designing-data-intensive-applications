@@ -16,6 +16,7 @@ class _Index:
     def get(self, key):
         return self._idx_map.get(key)
 
+
 class SimpleDbInMemoryIndex:
     def __init__(self, filename='database'):
         self.filename = filename
