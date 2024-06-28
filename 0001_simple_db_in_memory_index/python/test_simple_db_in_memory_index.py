@@ -22,7 +22,9 @@ async def db(filename):
 
 async def test_existing_db(db):
     db2 = simple_db_in_memory_index.SimpleDbInMemoryIndex(filename=db.filename)
-    assert db2._index._idx_map == {'greeting': (0, 28), 'menu': (28, 83)}
+
+    assert await db2.get('menu') == {"breakfast": "bubur ayam", "lunch": "nasi rendang", "dinner": "nasi goreng"}
+    assert await db2.get('greeting') == {"hello": "world"}
 
 
 async def test_set(db):
