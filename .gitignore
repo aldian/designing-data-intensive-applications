@@ -1,0 +1,9 @@
+.coverage 
+__pycache__
+.venv/
+.pytest_cache
+out/
+coverage.info
+*.o
+*.gcda
+*.gcno
