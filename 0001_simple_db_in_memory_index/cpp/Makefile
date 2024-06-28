@@ -28,3 +28,6 @@ generate_report:
 	lcov --remove coverage.info '/usr/*' '*test_*' --output-file coverage.info
 	genhtml coverage.info --output-directory out
 	@echo "Coverage report generated in out/index.html"
+
+format:
+	clang-format -i *.cpp *.h
