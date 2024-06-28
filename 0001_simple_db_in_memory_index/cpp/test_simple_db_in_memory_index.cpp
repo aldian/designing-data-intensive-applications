@@ -8,14 +8,15 @@ protected:
   const std::string filename = "test.db";
   SimpleDbInMemoryIndex *db;
 
+  const nlohmann::json greeting_json = {{"hello", "world"}};
+  const nlohmann::json menu_json = {{"breakfast", "bubur ayam"},
+                                    {"lunch", "nasi rendang"},
+                                    {"dinner", "nasi goreng"}};
+
   void SetUp() override {
     db = new SimpleDbInMemoryIndex(filename);
-    nlohmann::json greeting = {{"hello", "world"}};
-    nlohmann::json menu = {{"breakfast", "bubur ayam"},
-                           {"lunch", "nasi rendang"},
-                           {"dinner", "nasi goreng"}};
-    db->set("greeting", greeting);
-    db->set("menu", menu);
+    db->set("greeting", greeting_json);
+    db->set("menu", menu_json);
   }
 
   void TearDown() override {
@@ -31,8 +32,10 @@ TEST_F(SimpleDbInMemoryIndexTest, ExistingDb) {
       db2.get_index().get_idx_map(); // Assuming you have a method to get the
                                      // internal map for testing
   std::unordered_map<std::string, std::pair<long, size_t>> expected_idx_map = {
-      {"greeting", {0, 26}}, {"menu", {26, 77}}};
+      {"greeting", {0, 27}}, {"menu", {27, 78}}};
   EXPECT_EQ(idx_map, expected_idx_map);
+  EXPECT_EQ(db2.get("menu"), menu_json);
+  EXPECT_EQ(db2.get("greeting"), greeting_json);
 }
 
 // Test case for setting values
@@ -50,12 +53,8 @@ TEST_F(SimpleDbInMemoryIndexTest, Set) {
 
 // Test case for getting values
 TEST_F(SimpleDbInMemoryIndexTest, Get) {
-  nlohmann::json expected_menu = {{"breakfast", "bubur ayam"},
-                                  {"lunch", "nasi rendang"},
-                                  {"dinner", "nasi goreng"}};
-  nlohmann::json expected_greeting = {{"hello", "world"}};
-  EXPECT_EQ(db->get("menu"), expected_menu);
-  EXPECT_EQ(db->get("greeting"), expected_greeting);
+  EXPECT_EQ(db->get("menu"), menu_json);
+  EXPECT_EQ(db->get("greeting"), greeting_json);
 }
 
 // Test case for getting invalid key

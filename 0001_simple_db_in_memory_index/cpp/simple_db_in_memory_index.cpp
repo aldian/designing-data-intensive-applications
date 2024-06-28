@@ -34,7 +34,7 @@ SimpleDbInMemoryIndex::SimpleDbInMemoryIndex(const std::string &filename)
 
   std::string line;
   while (getline(file, line)) {
-    _index.add_next(line);
+    _index.add_next(line + "\n");
   }
 }
 
