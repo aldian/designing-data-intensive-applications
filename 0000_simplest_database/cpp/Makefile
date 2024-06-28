@@ -11,11 +11,12 @@ all: $(TARGET)
 $(TARGET): $(OBJECTS)
 	$(CXX) $(OBJECTS) -o $(TARGET) $(LDFLAGS)
 
-%.o: %.cpp
+%.o: %.cpp %.h
 	$(CXX) $(CXXFLAGS) -c $< -o $@
 
 clean:
-	rm -f $(OBJECTS) $(TARGET) *.gcda *.gcno
+	rm -f $(OBJECTS) $(TARGET) *.gcda *.gcno coverage.info
+	rm -rf out
 
 coverage: all run_tests generate_report
 
