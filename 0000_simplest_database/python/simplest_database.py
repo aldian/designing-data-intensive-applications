@@ -1,10 +1,13 @@
+import json
+
+
 class SimplestDatabase:
     def __init__(self, filename='database'):
         self.filename = filename
 
-    async def set(self, key, value):
+    async def set(self, key, json_dict):
         with open(self.filename, 'a') as f:
-            f.write(f'{key},{value}\n')
+            f.write(f'{key},{json.dumps(json_dict)}\n')
 
 
     async def get(self, key):
@@ -15,4 +18,4 @@ class SimplestDatabase:
                 if k == key:
                     matching_rows.append(v)
 
-        return matching_rows[-1] if matching_rows else None
+        return json.loads(matching_rows[-1]) if matching_rows else None

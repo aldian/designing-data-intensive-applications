@@ -16,6 +16,20 @@ protected:
   const std::string filename = "test_database";
   SimplestDatabase *db;
 
+  nlohmann::json value1 = nlohmann::json::parse(R"(
+  {
+    "hello": "world"
+  }
+  )");
+
+  nlohmann::json value2 = nlohmann::json::parse(R"(
+  {
+    "breakfast": "bubur ayam",
+    "lunch": "nasi rendang",
+    "dinner": "nasi goreng"
+  }
+  )");
+
   void SetUp() override { db = new SimplestDatabase(filename); }
 
   void TearDown() override {
@@ -45,15 +59,16 @@ protected:
 
 // Test case for setting and getting values
 TEST_F(SimplestDatabaseTest, SetAndGet) {
+
   try {
     // Set values
-    db->set("key1", "value1");
-    db->set("key2", "value2");
+    db->set("key1", value1);
+    db->set("key2", value2);
 
     // Get values
-    EXPECT_EQ(db->get("key1"), "value1");
-    EXPECT_EQ(db->get("key2"), "value2");
-    EXPECT_EQ(db->get("non_existent_key"), "");
+    EXPECT_EQ(db->get("key1"), value1);
+    EXPECT_EQ(db->get("key2"), value2);
+    EXPECT_EQ(db->get("non_existent_key"), nullptr);
   } catch (const std::runtime_error &e) {
     FAIL() << "Exception thrown: " << e.what();
   }
@@ -63,11 +78,11 @@ TEST_F(SimplestDatabaseTest, SetAndGet) {
 TEST_F(SimplestDatabaseTest, UpdateValue) {
   try {
     // Set values
-    db->set("key1", "value1");
-    db->set("key1", "value2");
+    db->set("key1", value1);
+    db->set("key1", value2);
 
     // Get updated value
-    EXPECT_EQ(db->get("key1"), "value2");
+    EXPECT_EQ(db->get("key1"), value2);
   } catch (const std::runtime_error &e) {
     FAIL() << "Exception thrown: " << e.what();
   }
@@ -79,7 +94,7 @@ TEST_F(SimplestDatabaseTest, SetFileOpenError) {
   create_restricted_dir(restricted_dir);
   SimplestDatabase invalid_db(restricted_dir + "/test_database");
   try {
-    invalid_db.set("key1", "value1");
+    invalid_db.set("key1", value1);
     FAIL() << "Expected std::runtime_error";
   } catch (const std::runtime_error &e) {
     EXPECT_STREQ(e.what(), "Unable to open file for writing");

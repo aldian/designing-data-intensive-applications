@@ -1,4 +1,4 @@
 test:
 	@#coverage run -m pytest -s
 	coverage run -m pytest
-	coverage report -m
+	coverage report -m --omit=test_*

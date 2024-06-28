@@ -1,4 +1,5 @@
 #pragma once
+#include <nlohmann/json.hpp>
 #include <string>
 
 class SimplestDatabase {
@@ -8,7 +9,7 @@ private:
 public:
   SimplestDatabase(const std::string &filename = "database");
 
-  void set(const std::string &key, const std::string &value);
+  void set(const std::string &key, const nlohmann::json &json_dict);
 
-  std::string get(const std::string &key);
+  nlohmann::json get(const std::string &key);
 };

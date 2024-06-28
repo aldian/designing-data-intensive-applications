@@ -8,17 +8,18 @@
 SimplestDatabase::SimplestDatabase(const std::string &filename)
     : filename(filename) {}
 
-void SimplestDatabase::set(const std::string &key, const std::string &value) {
+void SimplestDatabase::set(const std::string &key,
+                           const nlohmann::json &json_dict) {
   std::ofstream file;
   file.open(filename, std::ios::app);
   if (!file.is_open()) {
     throw std::runtime_error("Unable to open file for writing");
   }
-  file << key << "," << value << "\n";
+  file << key << "," << json_dict.dump() << "\n";
   file.close();
 }
 
-std::string SimplestDatabase::get(const std::string &key) {
+nlohmann::json SimplestDatabase::get(const std::string &key) {
   std::ifstream file(filename);
   if (!file.is_open()) {
     throw std::runtime_error("Unable to open file for reading");
@@ -38,8 +39,8 @@ std::string SimplestDatabase::get(const std::string &key) {
   file.close();
 
   if (matching_rows.empty()) {
-    return "";
+    return nullptr;
   } else {
-    return matching_rows.back();
+    return nlohmann::json::parse(matching_rows.back());
   }
 }
