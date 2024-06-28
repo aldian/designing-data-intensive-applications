@@ -32,8 +32,8 @@ async def test_set(db):
 
 
 async def test_get(db):
-    assert await db.get('greeting') == {"hello": "world"}
     assert await db.get('menu') == {"breakfast": "bubur ayam", "lunch": "nasi rendang", "dinner": "nasi goreng"}
+    assert await db.get('greeting') == {"hello": "world"}
 
 
 async def test_get_invalid_key(db):
