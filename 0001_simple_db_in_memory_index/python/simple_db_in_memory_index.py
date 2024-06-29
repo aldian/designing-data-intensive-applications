@@ -34,8 +34,8 @@ def _load_index(func):
             for task in tasks:
                 await task
 
-        result = await func(self, *args, **kwargs)
-        return result
+        return await func(self, *args, **kwargs)
+
     return wrapper
 
 
