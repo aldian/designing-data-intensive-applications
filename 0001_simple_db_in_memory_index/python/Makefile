@@ -1,4 +1,1 @@
-test:
-	@#coverage run -m pytest -s
-	coverage run -m pytest
-	coverage report -m --omit=test_*
+include ../../makefiles/python.mk
