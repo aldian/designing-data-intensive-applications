@@ -83,7 +83,7 @@ class SimpleDbMultiSegments:
         self.dbname = dbname
         self._indexes = []
         self._indexes_loaded = False
-        self._segment_bytes_threshold = segment_bytes_threshold
+        self._segment_bytes_threshold = max(segment_bytes_threshold, 1)  # Ensure segment_bytes_threshold is at least 1
 
     @_load_indexes
     async def set(self, key, json_dict):
@@ -113,3 +113,35 @@ class SimpleDbMultiSegments:
         with open(index._segment_name, 'r') as f:
             f.seek(offset)
             return json.loads(f.read(length).split(',', 1)[1].strip())
+
+    @_load_indexes
+    async def compact(self, new_segment_bytes_threshold=None):
+        if new_segment_bytes_threshold is None:
+            segment_bytes_threshold = self._segment_bytes_threshold
+        else:
+            segment_bytes_threshold = new_segment_bytes_threshold
+
+        checked_keys = set()
+        new_indexes = []
+        new_index = _Index(f'{self.dbname}/segment_{int(time.time() * 1_000_000)}.db')
+        for index in reversed(self._indexes):
+            for key in index._idx_map:
+                if key in checked_keys:
+                    continue
+                checked_keys.add(key)
+
+                if new_index._cursor >= segment_bytes_threshold:
+                    new_indexes.append(new_index)
+                    new_index = _Index(f'{self.dbname}/segment_{int(time.time() * 1_000_000)}.db')
+
+                value = await self.get(key)
+                line = f'{key},{json.dumps(value)}\n'
+                await new_index.add_next(line, key=key)
+
+                with open(new_index._segment_name, 'a') as f:
+                    f.write(line)
+
+        if new_index._idx_map:
+            new_indexes.append(new_index)
+
+        self._indexes = new_indexes

@@ -72,9 +72,69 @@ async def test_invalid_db_folder(db):
         await db2.set('greeting',  {'hello': 'world'})
 
 
-async def test_b_name_conflict(db):
+async def test_name_conflict(db):
     shutil.rmtree(db.dbname)
     Path.touch(Path(db.dbname))
     db2 = simple_db_multi_segments.SimpleDbMultiSegments(dbname=db.dbname)
     with pytest.raises(simple_db_multi_segments.IsADirectoryError):
         await db2.set('greeting',  {'hello': 'world'})
+
+
+async def test_compact(db):
+    await db.set('greeting',  {'halo': 'dunia'})
+
+    assert len(db._indexes) == 3
+    before_keys = set()
+    for index in db._indexes:
+        before_keys |= set(index._idx_map.keys())
+
+    assert len(before_keys) == 3
+    
+    values_before_compact = {}
+    for key in before_keys:
+        values_before_compact[key] = await db.get(key)
+
+    await db.compact()
+
+    assert len(db._indexes) == 2
+    after_keys = set()
+    for index in db._indexes:
+        after_keys |= set(index._idx_map.keys())
+
+    assert before_keys == after_keys
+
+    values_after_compact = {}
+    for key in before_keys:
+        values_after_compact[key] = await db.get(key)
+
+    assert values_before_compact == values_after_compact
+
+
+async def test_compact_with_new_bytes_threshold(db):
+    await db.set('greeting',  {'halo': 'dunia'})
+
+    assert len(db._indexes) == 3
+    before_keys = set()
+    for index in db._indexes:
+        before_keys |= set(index._idx_map.keys())
+
+    assert len(before_keys) == 3
+    
+    values_before_compact = {}
+    for key in before_keys:
+        values_before_compact[key] = await db.get(key)
+
+    await db.compact(new_segment_bytes_threshold=1_000_000)
+
+    assert len(db._indexes) == 1
+    after_keys = set()
+    for index in db._indexes:
+        after_keys |= set(index._idx_map.keys())
+
+    assert before_keys == after_keys
+
+    values_after_compact = {}
+    for key in before_keys:
+        values_after_compact[key] = await db.get(key)
+
+    assert values_before_compact == values_after_compact
