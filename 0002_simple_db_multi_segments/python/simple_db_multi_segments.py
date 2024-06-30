@@ -47,7 +47,7 @@ def _check_db_directory(dbname):
     return directory
 
 
-async def _load_index(index):
+async def _load_index(index: _Index):
     with open(index._segment_name, 'r') as f:
         tasks = []
         for line in f:
@@ -78,14 +78,18 @@ def _load_indexes(func):
 
 
 class SimpleDbMultiSegments:
-    def __init__(self, dbname='database', segment_bytes_threshold=1024 * 1024):
+    def __init__(self, dbname: str='database', segment_bytes_threshold: int=1024 * 1024):
+        """
+        segment_bytes_threshold cannot be less than 1. Any value less than 1 
+        will be converted to 1.
+        """
         self.dbname = dbname
         self._indexes = []
         self._indexes_loaded = False
         self._segment_bytes_threshold = max(segment_bytes_threshold, 1)  # Ensure segment_bytes_threshold is at least 1
 
     @_load_indexes
-    async def set(self, key, json_dict):
+    async def set(self, key: str, json_dict: dict):
         if len(self._indexes) < 1 or self._indexes[-1]._cursor >= self._segment_bytes_threshold:
             index = _Index(f'{self.dbname}/segment_{int(time.time() * 1_000_000)}.db')
             self._indexes.append(index)
@@ -99,7 +103,7 @@ class SimpleDbMultiSegments:
         await task
 
     @_load_indexes
-    async def get(self, key):
+    async def get(self, key: str) -> dict:
         for index in reversed(self._indexes):
             try:
                 offset, length = await index.get(key) 
@@ -114,11 +118,15 @@ class SimpleDbMultiSegments:
             return json.loads(f.read(length).split(',', 1)[1].strip())
 
     @_load_indexes
-    async def compact(self, new_segment_bytes_threshold=None):
+    async def compact(self, new_segment_bytes_threshold: int=None):
+        """
+        If specified, new_segment_bytes_threshold cannot be less than 1. 
+        Any value less than 1 will be converted to 1.
+        """
         if new_segment_bytes_threshold is None:
             segment_bytes_threshold = self._segment_bytes_threshold
         else:
-            segment_bytes_threshold = new_segment_bytes_threshold
+            segment_bytes_threshold = max(new_segment_bytes_threshold, 1)
 
         checked_keys = set()
         new_indexes = []
