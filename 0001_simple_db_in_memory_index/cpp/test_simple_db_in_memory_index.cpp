@@ -1,5 +1,5 @@
 #include "simple_db_in_memory_index.h"
-#include <cstdio> // For std::remove
+#include <cstdio>
 #include <fstream>
 #include <gtest/gtest.h>
 
@@ -29,8 +29,7 @@ protected:
 TEST_F(SimpleDbInMemoryIndexTest, ExistingDb) {
   SimpleDbInMemoryIndex db2(filename);
   auto idx_map =
-      db2.get_index().get_idx_map(); // Assuming you have a method to get the
-                                     // internal map for testing
+      db2.get_index().get_idx_map();
   std::unordered_map<std::string, std::pair<long, size_t>> expected_idx_map = {
       {"greeting", {0, 27}}, {"menu", {27, 78}}};
   EXPECT_EQ(idx_map, expected_idx_map);
