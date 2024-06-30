@@ -26,7 +26,6 @@ class _Index:
         return self._idx_map.get(key)
 
 
-
 # A segment file has a name pattern of 'segment_{unix epoch microsecond timestamp}.db'
 _SEGMENT_FILE_PATTERN = "segment_*.db"
 
