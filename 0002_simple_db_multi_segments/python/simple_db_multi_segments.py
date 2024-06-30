@@ -135,12 +135,13 @@ class SimpleDbMultiSegments:
 
                 value = await self.get(key)
                 line = f'{key},{json.dumps(value)}\n'
-                await new_index.add_next(line, key=key)
-
+                task = asyncio.create_task(new_index.add_next(line, key=key))
                 with open(new_index._segment_name, 'a') as f:
                     f.write(line)
+                await task
 
         if new_index._idx_map:
             new_indexes.append(new_index)
 
         self._indexes = new_indexes
+        self._segment_bytes_threshold = segment_bytes_threshold
