@@ -1,3 +1,6 @@
+TARGET = test_${APP}
+SOURCES = ${APP}.cpp test_${APP}.cpp
+
 OBJECTS = $(SOURCES:.cpp=.o)
 
 all: $(TARGET)
